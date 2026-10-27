@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en" data-theme="saas">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Event Ops Planner — Run-of-Show, Staff, Vendors &amp; Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ THEME TOKENS ============ */
+:root, html[data-theme="saas"]{
+  --bg:#F6F7F9; --bg2:#EEF0F4; --surface:#FFFFFF; --surface2:#F1F3F7;
+  --ink:#14161C; --muted:#5C6472; --faint:#8A93A3;
+  --line:#E2E5EC; --line-strong:#CBD1DD;
+  --accent:#4F46E5; --accent-soft:#EEEDFB; --accent-ink:#FFFFFF;
+  --good:#15803D; --good-soft:#E7F6EC; --warn:#B45309; --warn-soft:#FDF1DE;
+  --bad:#B91C1C; --bad-soft:#FDECEC;
+  --radius:12px; --radius-sm:8px; --bw:1px;
+  --shadow:0 1px 2px rgba(20,22,28,.05),0 8px 24px rgba(20,22,28,.05);
+  --shadow-pop:0 12px 40px rgba(20,22,28,.16);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-display:var(--font); --font-mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --hero-bg:#14161C; --hero-ink:#FFFFFF; --hero-muted:#B9BFCB;
+  color-scheme:light;
+}
+html[data-theme="bold"]{
+  --bg:#FFF6E9; --bg2:#FFE9C7; --surface:#FFFFFF; --surface2:#FFF1D6;
+  --ink:#1D1A12; --muted:#5F5744; --faint:#8B8168;
+  --line:#1D1A12; --line-strong:#1D1A12;
+  --accent:#FF5C38; --accent-soft:#FFE3DA; --accent-ink:#FFFFFF;
+  --good:#0E7A3D; --good-soft:#D9F5E3; --warn:#9A6200; --warn-soft:#FFEFC2;
+  --bad:#C2261B; --bad-soft:#FFDCD6;
+  --radius:20px; --radius-sm:14px; --bw:2px;
+  --shadow:5px 5px 0 #1D1A12; --shadow-pop:8px 8px 0 #1D1A12;
+  --font:"Archivo",-apple-system,"Segoe UI",sans-serif;
+  --font-display:"Archivo",sans-serif; --font-mono:"JetBrains Mono",monospace;
+  --hero-bg:#FFC531; --hero-ink:#1D1A12; --hero-muted:#5A4A12;
+  color-scheme:light;
+}
+html[data-theme="dark"]{
+  --bg:#0A0C10; --bg2:#0E1117; --surface:#14181F; --surface2:#1A1F29;
+  --ink:#EDF1F7; --muted:#9AA6B8; --faint:#66707F;
+  --line:#262D3A; --line-strong:#39424F;
+  --accent:#B8F135; --accent-soft:#243112; --accent-ink:#131702;
+  --good:#4ADE80; --good-soft:#12291B; --warn:#FBBF24; --warn-soft:#2E2410;
+  --bad:#F87171; --bad-soft:#331618;
+  --radius:14px; --radius-sm:10px; --bw:1px;
+  --shadow:0 0 0 1px rgba(184,241,53,.04),0 16px 40px rgba(0,0,0,.5);
+  --shadow-pop:0 20px 60px rgba(0,0,0,.7);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-display:var(--font); --font-mono:"JetBrains Mono",ui-monospace,monospace;
+  --hero-bg:#10141B; --hero-ink:#EDF1F7; --hero-muted:#9AA6B8;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.5;transition:background .25s ease,color .25s ease}
+button{font:inherit;cursor:pointer}
+input,select,textarea{font:inherit;color:var(--ink)}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1060px;margin:0 auto;padding:0 18px 64px}
+
+/* ============ TOP BAR / THEME TOGGLE ============ */
+.topbar{position:sticky;top:0;z-index:40;background:var(--bg);border-bottom:var(--bw) solid var(--line);backdrop-filter:saturate(1.2)}
+.topbar-in{max-width:1060px;margin:0 auto;padding:12px 18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;letter-spacing:-.01em;font-size:17px}
+.brand-dot{width:30px;height:30px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:15px;flex:none;border:var(--bw) solid var(--line-strong)}
+html[data-theme="bold"] .brand-dot{border-radius:50%;box-shadow:3px 3px 0 #1D1A12}
+.theme-switch{display:flex;background:var(--surface);border:var(--bw) solid var(--line-strong);border-radius:999px;padding:4px;gap:4px;box-shadow:var(--shadow)}
+.theme-switch button{border:0;background:transparent;color:var(--muted);padding:7px 13px;border-radius:999px;font-size:13.5px;font-weight:700;white-space:nowrap}
+.theme-switch button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.theme-switch .ts-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);align-self:center;padding:0 4px 0 8px}
+
+/* ============ HERO / SUMMARY ============ */
+.hero{margin-top:22px;background:var(--hero-bg);color:var(--hero-ink);border-radius:var(--radius);border:var(--bw) solid var(--line-strong);box-shadow:var(--shadow);padding:26px 26px 22px;position:relative;overflow:hidden}
+html[data-theme="dark"] .hero{box-shadow:0 0 0 1px rgba(184,241,53,.12),0 18px 48px rgba(0,0,0,.55)}
+.tagline{font-size:15px;color:var(--hero-muted);margin:0 0 14px;max-width:56ch}
+.hero h1{font-family:var(--font-display);font-size:clamp(26px,4.6vw,40px);line-height:1.08;letter-spacing:-.02em;margin:0 0 6px;font-weight:800}
+html[data-theme="bold"] .hero h1{font-weight:900;text-transform:none}
+.hero .client{font-size:16px;color:var(--hero-muted);margin:0}
+.demo-tag{display:inline-block;font-family:var(--font-mono);font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);padding:4px 10px;border-radius:999px;margin-bottom:12px}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:18px;font-family:var(--font-mono);font-size:14px}
+.hero-meta b{display:block;font-family:var(--font);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--hero-muted);font-weight:700;margin-bottom:2px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+
+/* ============ BUTTONS / CHIPS ============ */
+.btn{border:var(--bw) solid var(--line-strong);background:var(--surface);color:var(--ink);padding:9px 16px;border-radius:var(--radius-sm);font-weight:700;font-size:14.5px;box-shadow:var(--shadow);display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{box-shadow:none;background:transparent}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.small{padding:6px 11px;font-size:13.5px}
+.btn:active{transform:translateY(1px)}
+.hero .btn{background:transparent;color:var(--hero-ink);border-color:var(--hero-muted);box-shadow:none}
+.hero .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* event switcher */
+.switcher{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:22px 0 4px}
+.switcher .sw-label{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--faint)}
+.ev-chip{border:var(--bw) solid var(--line-strong);background:var(--surface);border-radius:999px;padding:8px 15px;font-weight:700;font-size:14px;box-shadow:var(--shadow);color:var(--ink)}
+.ev-chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+/* ============ STAT STRIP ============ */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.stat{background:var(--surface);border:var(--bw) solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px}
+.stat .num{font-family:var(--font-display);font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.stat .lbl{font-size:12.5px;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-top:6px}
+.ring-wrap{display:flex;align-items:center;gap:12px}
+.ring{flex:none;transform:rotate(-90deg)}
+.ring .track{stroke:var(--surface2)}
+.ring .fill{stroke:var(--accent);transition:stroke-dashoffset .5s ease}
+.ring-num{font-family:var(--font-display);font-size:26px;font-weight:800;line-height:1}
+.bar{height:10px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-top:10px;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .5s ease}
+
+/* ============ TABS ============ */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 18px}
+.tabs button{border:var(--bw) solid var(--line-strong);background:var(--surface);color:var(--muted);padding:9px 16px;border-radius:999px;font-weight:700;font-size:14.5px}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+html[data-theme="dark"] .tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.panel{background:var(--surface);border:var(--bw) solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+.panel h2{font-family:var(--font-display);font-size:21px;margin:0 0 4px;letter-spacing:-.01em}
+.panel .sub{color:var(--muted);margin:0 0 18px;font-size:14.5px}
+.panel-head{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;justify-content:space-between}
+.empty{border:2px dashed var(--line-strong);border-radius:var(--radius-sm);padding:26px;text-align:center;color:var(--muted)}
+
+/* timeline */
+.cue{display:grid;grid-template-columns:86px 22px 1fr;gap:0 12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.cue:last-of-type{border-bottom:0}
+.cue-time{font-family:var(--font-mono);font-weight:700;font-size:14.5px;padding-top:2px;white-space:nowrap}
+.cue-rail{position:relative}
+.cue-rail::before{content:"";position:absolute;left:50%;top:26px;bottom:-16px;width:2px;background:var(--line);transform:translateX(-50%)}
+.cue:last-of-type .cue-rail::before{display:none}
+.cue-dot{width:14px;height:14px;border-radius:50%;background:var(--accent);margin:5px auto 0;position:relative;z-index:1;border:3px solid var(--surface);box-shadow:0 0 0 2px var(--accent)}
+.cue-body h3{margin:0;font-size:16.5px}
+.cue-body p{margin:3px 0 0;color:var(--muted);font-size:14.5px}
+.pill{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-top:7px}
+html[data-theme="dark"] .pill{color:var(--accent)}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.plain{background:var(--surface2);color:var(--muted)}
+.row-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.icon-btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);border-radius:8px;padding:4px 10px;font-size:13px;font-weight:700}
+.icon-btn:hover{color:var(--ink)}
+.icon-btn.danger:hover{color:var(--bad);border-color:var(--bad)}
+
+/* rows (staff / vendors / issues) */
+.list-row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line)}
+.list-row:last-of-type{border-bottom:0}
+.list-row .who{min-width:200px;flex:1}
+.list-row .who b{font-size:16px}
+.list-row .who span{display:block;color:var(--muted);font-size:14px}
+.meta-mono{font-family:var(--font-mono);font-size:14px;font-weight:700;white-space:nowrap}
+.check-btn{border:var(--bw) solid var(--line-strong);border-radius:999px;padding:7px 14px;font-weight:800;font-size:13.5px;background:var(--surface2);color:var(--muted)}
+.check-btn.on{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+
+/* prep */
+.prep-item{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line)}
+.prep-item:last-of-type{border-bottom:0}
+.prep-box{flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--line-strong);background:var(--surface);display:grid;place-items:center;font-weight:900;color:transparent;margin-top:1px;padding:0}
+.prep-box.done{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.prep-item .lbl{flex:1;font-size:15.5px}
+.prep-item.done .lbl{color:var(--muted);text-decoration:line-through;text-decoration-thickness:1.5px}
+
+/* case study */
+.cs-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 30px}
+.cs-grid h3{font-family:var(--font-display);font-size:16px;margin:0 0 6px}
+.cs-grid p,.cs-grid li{color:var(--muted);font-size:15px}
+.cs-grid p{margin:0}.cs-grid ul{margin:0;padding-left:19px}.cs-grid li{margin:4px 0}
+.cs-full{grid-column:1/-1}
+.kv{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.kv span{font-family:var(--font-mono);font-size:13px;background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:5px 10px;color:var(--ink)}
+
+/* footer */
+.foot{margin-top:34px;color:var(--faint);font-size:13.5px;text-align:center}
+.foot b{color:var(--muted)}
+
+/* ============ MODAL ============ */
+dialog{border:var(--bw) solid var(--line-strong);background:var(--surface);color:var(--ink);border-radius:var(--radius);box-shadow:var(--shadow-pop);padding:0;width:min(520px,calc(100vw - 28px));max-height:88vh;overflow:auto}
+dialog::backdrop{background:rgba(8,10,14,.55)}
+.modal-in{padding:24px}
+.modal-in h2{font-family:var(--font-display);margin:0 0 4px;font-size:21px}
+.modal-in .sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:var(--bw) solid var(--line-strong);background:var(--surface);border-radius:var(--radius-sm);padding:10px 12px}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;margin-top:18px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:700;font-size:14.5px;box-shadow:var(--shadow-pop);transition:transform .3s ease;z-index:60;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@media (max-width:760px){
+  .stats{grid-template-columns:1fr 1fr}
+  .cs-grid{grid-template-columns:1fr}
+  .panel{padding:17px}
+  .hero{padding:21px 18px 18px}
+  .cue{grid-template-columns:70px 18px 1fr;gap:0 9px}
+  .cue-time{font-size:13px}
+  .field-row{grid-template-columns:1fr}
+  .topbar-in{padding:10px 14px}
+  .theme-switch button{padding:7px 10px;font-size:12.5px}
+  .theme-switch .ts-label{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand"><span class="brand-dot" aria-hidden="true">◷</span> Event Ops Planner</div>
+    <div class="theme-switch" role="group" aria-label="Design theme">
+      <span class="ts-label">Vibe</span>
+      <button type="button" data-theme-btn="saas" aria-pressed="true">Clean SaaS</button>
+      <button type="button" data-theme-btn="bold" aria-pressed="false">Bold Consumer</button>
+      <button type="button" data-theme-btn="dark" aria-pressed="false">Dark Premium</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- Event switcher -->
+  <nav class="switcher" aria-label="Your events">
+    <span class="sw-label">Events</span>
+    <span id="eventChips" style="display:contents"></span>
+    <button class="btn small primary" type="button" id="newEventBtn">＋ New event</button>
+  </nav>
+
+  <!-- Summary header -->
+  <section class="hero" id="hero" aria-live="polite"></section>
+
+  <!-- Stats -->
+  <section class="stats" id="stats" aria-label="Event readiness summary"></section>
+
+  <!-- Tabs -->
+  <div class="tabs" role="tablist" aria-label="Event workspace">
+    <button role="tab" data-tab="cues" aria-selected="true">Run of Show</button>
+    <button role="tab" data-tab="staff" aria-selected="false">Staff</button>
+    <button role="tab" data-tab="vendors" aria-selected="false">Vendors</button>
+    <button role="tab" data-tab="prep" aria-selected="false">Prep Checklist</button>
+    <button role="tab" data-tab="issues" aria-selected="false">Day-of Issues <span id="issueBadge"></span></button>
+    <button role="tab" data-tab="casestudy" aria-selected="false">Case Study</button>
+  </div>
+
+  <main id="panelHost"></main>
+
+  <p class="foot">Demo event is fictional, created for this portfolio demo. <b>Your edits save in this browser only</b> — nothing leaves your device, and clearing site data resets the demo.</p>
+</div>
+
+<!-- Modal -->
+<dialog id="modal"><div class="modal-in" id="modalIn"></div></dialog>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+"use strict";
+/* ================= THEME ================= */
+var THEME_KEY = "eventops-theme";
+function applyTheme(name){
+  if(["saas","bold","dark"].indexOf(name)===-1) name="saas";
+  document.documentElement.setAttribute("data-theme", name);
+  try{ localStorage.setItem(THEME_KEY, name); }catch(e){}
+  var btns=document.querySelectorAll("[data-theme-btn]");
+  for(var i=0;i<btns.length;i++){ btns[i].setAttribute("aria-pressed", btns[i].getAttribute("data-theme-btn")===name ? "true":"false"); }
+}
+(function initTheme(){
+  var saved="saas"; try{ saved=localStorage.getItem(THEME_KEY)||"saas"; }catch(e){}
+  applyTheme(saved);
+})();
+document.querySelectorAll("[data-theme-btn]").forEach(function(b){
+  b.addEventListener("click", function(){ applyTheme(b.getAttribute("data-theme-btn")); toast("Theme: "+b.textContent.trim()); });
+});
+document.addEventListener("keydown", function(e){
+  if(e.target.matches("input,textarea,select")) return;
+  if(e.key==="1") applyTheme("saas");
+  if(e.key==="2") applyTheme("bold");
+  if(e.key==="3") applyTheme("dark");
+});
+
+/* ================= DATA ================= */
+var STORE_KEY = "eventops-planner-v1";
+var uidCounter = 1000;
+function uid(p){ return p + "-" + (++uidCounter) + "-" + Math.random().toString(36).slice(2,7); }
+
+function demoEvent(){
+  return {
+    id:"ev-northwind", name:"Holiday Buyout", client:"Northwind Labs", fictional:true,
+    dateLabel:"Fri, Dec 11, 2026", doors:"5:30 PM", guests:240, venue:"Main Hall + Bays 1–12",
+    cues:[
+      {id:uid("cue"), time:"5:30 PM", title:"Doors open — check-in & coat check live", owner:"Sam · Check-in", notes:"Wristbands by group color. Client welcome sign on the entry screen."},
+      {id:uid("cue"), time:"6:00 PM", title:"Welcome remarks from Northwind host", owner:"Maya · Event Lead", notes:"Mic 1 on stage left. House music dips at 5:58."},
+      {id:uid("cue"), time:"6:20 PM", title:"Food stations open", owner:"Bay Bites Catering", notes:"Three stations: sliders, tacos, dessert. Allergen cards at each station."},
+      {id:uid("cue"), time:"6:45 PM", title:"Tournament bracket kicks off", owner:"Jordan · Floor Lead", notes:"16 teams across Bays 1–12. Bracket on the big screen, scores to Jordan."},
+      {id:uid("cue"), time:"7:30 PM", title:"Photo booth + dessert push", owner:"Taylor · AV / Photo Booth", notes:"Announce booth location. Watch printer paper — see open issue."},
+      {id:uid("cue"), time:"8:15 PM", title:"Awards & raffle", owner:"Maya · Event Lead", notes:"Trophies from back office. Raffle drum to stage at 8:05."},
+      {id:uid("cue"), time:"9:00 PM", title:"Last food call, bar winds down", owner:"Alex · Bar Lead", notes:"Announce last call for stations; bar last call at 9:30."},
+      {id:uid("cue"), time:"10:00 PM", title:"Event close — thank-yous & load-out", owner:"Full team", notes:"Client walkthrough, lost & found sweep, vendor load-out via bay door."}
+    ],
+    staff:[
+      {id:uid("st"), name:"Maya Chen", role:"Event Lead", call:"3:30 PM", confirmed:true},
+      {id:uid("st"), name:"Jordan Lee", role:"Floor Lead", call:"4:00 PM", confirmed:true},
+      {id:uid("st"), name:"Alex Rivera", role:"Bar Lead", call:"4:00 PM", confirmed:true},
+      {id:uid("st"), name:"Sam Patel", role:"Check-in & Welcome", call:"4:30 PM", confirmed:true},
+      {id:uid("st"), name:"Taylor Brooks", role:"AV / Photo Booth", call:"4:30 PM", confirmed:true},
+      {id:uid("st"), name:"Casey Morgan", role:"Floor Runner", call:"5:00 PM", confirmed:false}
+    ],
+    vendors:[
+      {id:uid("vn"), name:"Bay Bites Catering", service:"Food stations ×3", arrival:"3:00 PM", contact:"Priya — (555) 014-2280", status:"Confirmed"},
+      {id:uid("vn"), name:"Soundline AV", service:"DJ, lighting & stage mic", arrival:"2:30 PM", contact:"Devon — (555) 014-7731", status:"Set & soundchecked"},
+      {id:uid("vn"), name:"Golden Hour Photo Co.", service:"Photo booth + prints", arrival:"4:00 PM", contact:"Ruth — (555) 014-9054", status:"On site"}
+    ],
+    prep:[
+      {id:uid("pp"), label:"BEO signed and filed", done:true},
+      {id:uid("pp"), label:"Floor plan locked — bays, stations, stage", done:true},
+      {id:uid("pp"), label:"Staff call sheet sent to all 6", done:true},
+      {id:uid("pp"), label:"Guest count confirmed at 240 with client", done:true},
+      {id:uid("pp"), label:"Bar inventory counted and staged", done:true},
+      {id:uid("pp"), label:"Catering counts and allergen cards confirmed", done:true},
+      {id:uid("pp"), label:"AV, lighting and mic check passed", done:true},
+      {id:uid("pp"), label:"Photo booth test print approved", done:true},
+      {id:uid("pp"), label:"Spare photo-booth printer paper restocked", done:false},
+      {id:uid("pp"), label:"Final walkthrough with client host", done:false}
+    ],
+    issues:[
+      {id:uid("is"), title:"Photo booth running low on printer paper", detail:"Booth is on its last paper pack after the test prints. Restock from the supply closet before the 7:30 PM booth push — or the booth closes mid-event.", owner:"Taylor Brooks", severity:"Medium", status:"Open"}
+    ]
+  };
+}
+
+var state = { events:[], activeId:null, tab:"cues" };
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify({events:state.events, activeId:state.activeId})); }catch(e){} }
+function load(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(raw){ var parsed = JSON.parse(raw); if(parsed && parsed.events && parsed.events.length){ state.events=parsed.events; state.activeId=parsed.activeId||parsed.events[0].id; return; } }
+  }catch(e){}
+  var d = demoEvent(); state.events=[d]; state.activeId=d.id; save();
+}
+function activeEvent(){ for(var i=0;i<state.events.length;i++){ if(state.events[i].id===state.activeId) return state.events[i]; } return state.events[0]; }
+
+/* ================= HELPERS ================= */
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+function plain(s){ return String(s==null?"":s); } // stored values are raw text; rendering always goes through esc()
+function prepPct(ev){ if(!ev.prep.length) return 0; var d=ev.prep.filter(function(p){return p.done;}).length; return Math.round(d/ev.prep.length*100); }
+function openIssues(ev){ return ev.issues.filter(function(i){return i.status==="Open";}).length; }
+function confirmedStaff(ev){ return ev.staff.filter(function(s){return s.confirmed;}).length; }
+var toastTimer=null;
+function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(function(){ t.classList.remove("show"); },2400); }
+
+/* ================= RENDER ================= */
+function render(){
+  renderChips(); renderHero(); renderStats(); renderPanel();
+  var badge=document.getElementById("issueBadge");
+  var ev=activeEvent(); var n=ev?openIssues(ev):0;
+  badge.innerHTML = n? ' <span class="pill bad" style="margin:0">'+n+" open</span>" : "";
+  document.querySelectorAll("[data-tab]").forEach(function(b){ b.setAttribute("aria-selected", b.getAttribute("data-tab")===state.tab?"true":"false"); });
+}
+function renderChips(){
+  var host=document.getElementById("eventChips"); host.innerHTML="";
+  state.events.forEach(function(ev){
+    var b=document.createElement("button"); b.type="button"; b.className="ev-chip";
+    b.setAttribute("aria-pressed", ev.id===state.activeId?"true":"false");
+    b.textContent = plain(ev.client)+" — "+plain(ev.name);
+    b.addEventListener("click", function(){ state.activeId=ev.id; save(); render(); });
+    host.appendChild(b);
+  });
+}
+function renderHero(){
+  var ev=activeEvent(); var host=document.getElementById("hero");
+  if(!ev){ host.innerHTML="<h1>No events yet</h1><p class='client'>Create your first event to start planning.</p>"; return; }
+  host.innerHTML =
+    (ev.fictional ? '<span class="demo-tag">Fictional demo event</span>' : '<span class="demo-tag">Your event</span>') +
+    '<p class="tagline">One live plan for event day — run-of-show, staff, vendors, and prep.</p>' +
+    "<h1>"+esc(ev.client)+" — "+esc(ev.name)+"</h1>" +
+    '<p class="client">'+esc(ev.venue||"Venue TBD")+'</p>' +
+    '<div class="hero-meta">' +
+      "<div><b>Date</b>"+esc(ev.dateLabel)+"</div>" +
+      "<div><b>Doors</b>"+esc(ev.doors)+"</div>" +
+      "<div><b>Guests</b>"+esc(ev.guests)+"</div>" +
+      "<div><b>Readiness</b>"+prepPct(ev)+"%</div>" +
+    "</div>" +
+    '<div class="hero-actions">' +
+      '<button class="btn primary" type="button" id="editEventBtn">Edit event details</button>' +
+      '<button class="btn" type="button" id="resetDemoBtn">Reset demo data</button>' +
+      '<button class="btn" type="button" id="deleteEventBtn">Delete event</button>' +
+    "</div>";
+  document.getElementById("editEventBtn").addEventListener("click", function(){ openEventForm(ev); });
+  document.getElementById("deleteEventBtn").addEventListener("click", function(){
+    openConfirm("Delete this event?", "“"+plain(ev.client)+" — "+plain(ev.name)+"” and all its cues, staff, vendors, prep and issues will be removed from this browser.", "Delete event", function(){
+      state.events = state.events.filter(function(e){return e.id!==ev.id;});
+      if(!state.events.length){ var d=demoEvent(); state.events=[d]; }
+      state.activeId = state.events[0].id; save(); render(); toast("Event deleted.");
+    });
+  });
+  document.getElementById("resetDemoBtn").addEventListener("click", function(){
+    openConfirm("Reset to the demo event?", "All events and edits in this browser will be replaced with the original fictional Northwind Labs demo.", "Reset demo", function(){
+      var d=demoEvent(); state.events=[d]; state.activeId=d.id; state.tab="cues"; save(); render(); toast("Demo reset.");
+    });
+  });
+}
+function renderStats(){
+  var ev=activeEvent(); var host=document.getElementById("stats");
+  if(!ev){ host.innerHTML=""; return; }
+  var pct=prepPct(ev); var circ=2*Math.PI*26;
+  host.innerHTML =
+    '<div class="stat"><div class="ring-wrap"><svg class="ring" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><circle class="track" cx="32" cy="32" r="26" fill="none" stroke-width="7"/><circle class="fill" cx="32" cy="32" r="26" fill="none" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+circ+'" stroke-dashoffset="'+(circ*(1-pct/100))+'"/></svg><div><div class="ring-num">'+pct+'%</div><div class="lbl" style="margin-top:2px">Ready</div></div></div><div class="bar"><i style="width:'+pct+'%"></i></div></div>' +
+    '<div class="stat"><div class="num">'+ev.cues.length+'</div><div class="lbl">Run-of-show cues</div></div>' +
+    '<div class="stat"><div class="num">'+confirmedStaff(ev)+" / "+ev.staff.length+'</div><div class="lbl">Staff confirmed</div></div>' +
+    '<div class="stat"><div class="num">'+openIssues(ev)+'</div><div class="lbl">Open issues</div></div>';
+}
+
+function panelShell(title, sub, addLabel, addFn){
+  var host=document.getElementById("panelHost");
+  host.innerHTML='<section class="panel"><div class="panel-head"><div><h2>'+title+'</h2><p class="sub">'+sub+'</p></div>'+(addLabel?'<button class="btn small primary" type="button" id="panelAdd">'+addLabel+'</button>':"")+'</div><div id="panelBody"></div></section>';
+  if(addLabel) document.getElementById("panelAdd").addEventListener("click", addFn);
+  return document.getElementById("panelBody");
+}
+function rowActions(editFn, delFn){
+  var div=document.createElement("div"); div.className="row-actions";
+  var e=document.createElement("button"); e.type="button"; e.className="icon-btn"; e.textContent="Edit"; e.addEventListener("click", editFn);
+  var d=document.createElement("button"); d.type="button"; d.className="icon-btn danger"; d.textContent="Delete"; d.addEventListener("click", delFn);
+  div.appendChild(e); div.appendChild(d); return div;
+}
+
+function renderPanel(){
+  var ev=activeEvent(); if(!ev) return;
+  if(state.tab==="cues") renderCues(ev);
+  else if(state.tab==="staff") renderStaff(ev);
+  else if(state.tab==="vendors") renderVendors(ev);
+  else if(state.tab==="prep") renderPrep(ev);
+  else if(state.tab==="issues") renderIssues(ev);
+  else renderCaseStudy(ev);
+}
+function renderCues(ev){
+  var body=panelShell("Run of Show","Every cue, in order, with an owner — the single timeline the whole team works from on event night.","＋ Add cue", function(){ openCueForm(ev, null); });
+  if(!ev.cues.length){ body.innerHTML='<div class="empty">No cues yet. Add the first cue — doors open is a good start.</div>'; return; }
+  ev.cues.forEach(function(c){
+    var row=document.createElement("div"); row.className="cue";
+    row.innerHTML='<div class="cue-time">'+esc(c.time)+'</div><div class="cue-rail"><div class="cue-dot"></div></div><div class="cue-body"><h3>'+esc(c.title)+'</h3>'+(c.notes?'<p>'+esc(c.notes)+'</p>':"")+'<span class="pill">'+esc(c.owner||"Unassigned")+"</span></div>";
+    row.querySelector(".cue-body").appendChild(rowActions(
+      function(){ openCueForm(ev, c); },
+      function(){ openConfirm("Delete this cue?", plain(c.title), "Delete cue", function(){ ev.cues=ev.cues.filter(function(x){return x.id!==c.id;}); save(); render(); toast("Cue deleted."); }); }
+    ));
+    body.appendChild(row);
+  });
+}
+function renderStaff(ev){
+  var body=panelShell("Staff &amp; Call Times","Who's working, when they arrive, and who's actually confirmed — chased before event day, not during it.","＋ Add staff", function(){ openStaffForm(ev, null); });
+  if(!ev.staff.length){ body.innerHTML='<div class="empty">No staff yet. Add your first team member.</div>'; return; }
+  ev.staff.forEach(function(s){
+    var row=document.createElement("div"); row.className="list-row";
+    var left=document.createElement("div"); left.className="who"; left.innerHTML="<b>"+esc(s.name)+"</b><span>"+esc(s.role)+"</span>";
+    var mid=document.createElement("div"); mid.innerHTML='<span style="display:block;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)">Call time</span><span class="meta-mono">'+esc(s.call)+"</span>";
+    var btn=document.createElement("button"); btn.type="button"; btn.className="check-btn"+(s.confirmed?" on":""); btn.textContent=s.confirmed?"✓ Confirmed":"Tap to confirm";
+    btn.setAttribute("aria-pressed", s.confirmed?"true":"false");
+    btn.addEventListener("click", function(){ s.confirmed=!s.confirmed; save(); render(); toast(s.confirmed? plain(s.name)+" confirmed." : plain(s.name)+" marked unconfirmed."); });
+    var wrap=document.createElement("div"); wrap.style.display="flex"; wrap.style.flexDirection="column"; wrap.style.gap="2px"; wrap.appendChild(btn);
+    wrap.appendChild(rowActions(function(){ openStaffForm(ev, s); }, function(){ openConfirm("Remove staff member?", plain(s.name), "Remove", function(){ ev.staff=ev.staff.filter(function(x){return x.id!==s.id;}); save(); render(); toast("Staff removed."); }); }));
+    row.appendChild(left); row.appendChild(mid); row.appendChild(wrap); body.appendChild(row);
+  });
+}
+function renderVendors(ev){
+  var body=panelShell("Vendors","Outside partners, their arrival windows, and a phone number that works on the night.","＋ Add vendor", function(){ openVendorForm(ev, null); });
+  if(!ev.vendors.length){ body.innerHTML='<div class="empty">No vendors yet. Add catering, AV, entertainment — whoever is coming through the door.</div>'; return; }
+  ev.vendors.forEach(function(v){
+    var row=document.createElement("div"); row.className="list-row";
+    var left=document.createElement("div"); left.className="who"; left.innerHTML="<b>"+esc(v.name)+"</b><span>"+esc(v.service)+"</span><span>"+esc(v.contact)+"</span>";
+    var mid=document.createElement("div"); mid.innerHTML='<span style="display:block;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--faint)">Arrives</span><span class="meta-mono">'+esc(v.arrival)+'</span><br><span class="pill good">'+esc(v.status)+"</span>";
+    var acts=rowActions(function(){ openVendorForm(ev, v); }, function(){ openConfirm("Remove vendor?", plain(v.name), "Remove", function(){ ev.vendors=ev.vendors.filter(function(x){return x.id!==v.id;}); save(); render(); toast("Vendor removed."); }); });
+    var wrap=document.createElement("div"); wrap.appendChild(mid); wrap.appendChild(acts);
+    row.appendChild(left); row.appendChild(wrap); body.appendChild(row);
+  });
+}
+function renderPrep(ev){
+  var body=panelShell("Prep Checklist","The readiness number in the header is just this list, counted. Nothing hides — if it's not checked, it's not ready.","＋ Add item", function(){ openPrepForm(ev); });
+  if(!ev.prep.length){ body.innerHTML='<div class="empty">No prep items yet.</div>'; return; }
+  ev.prep.forEach(function(p){
+    var row=document.createElement("div"); row.className="prep-item"+(p.done?" done":"");
+    var box=document.createElement("button"); box.type="button"; box.className="prep-box"+(p.done?" done":""); box.textContent="✓"; box.setAttribute("aria-pressed", p.done?"true":"false"); box.setAttribute("aria-label", "Toggle: "+plain(p.label));
+    box.addEventListener("click", function(){ p.done=!p.done; save(); render(); });
+    var lbl=document.createElement("div"); lbl.className="lbl"; lbl.textContent=plain(p.label);
+    var del=document.createElement("button"); del.type="button"; del.className="icon-btn danger"; del.textContent="Delete";
+    del.addEventListener("click", function(){ ev.prep=ev.prep.filter(function(x){return x.id!==p.id;}); save(); render(); toast("Prep item removed."); });
+    row.appendChild(box); row.appendChild(lbl); row.appendChild(del); body.appendChild(row);
+  });
+}
+function renderIssues(ev){
+  var body=panelShell("Day-of Issue Log","Problems get written down with an owner the moment they surface — not carried in someone's head until they become emergencies.","＋ Log issue", function(){ openIssueForm(ev); });
+  if(!ev.issues.length){ body.innerHTML='<div class="empty">No issues logged. Quiet board, good night.</div>'; return; }
+  ev.issues.forEach(function(it){
+    var row=document.createElement("div"); row.className="list-row";
+    var left=document.createElement("div"); left.className="who";
+    left.innerHTML="<b>"+esc(it.title)+"</b><span>"+esc(it.detail)+"</span><span>Owner: "+esc(it.owner)+"</span>";
+    left.innerHTML += '<span class="pill '+(it.severity==="High"?"bad":it.severity==="Medium"?"warn":"plain")+'">'+esc(it.severity)+" severity</span> ";
+    var btn=document.createElement("button"); btn.type="button"; btn.className="check-btn"+(it.status==="Resolved"?" on":""); btn.textContent=it.status==="Resolved"?"✓ Resolved":"Mark resolved";
+    btn.addEventListener("click", function(){ it.status = it.status==="Resolved" ? "Open" : "Resolved"; save(); render(); toast(it.status==="Resolved" ? "Issue resolved. Nice." : "Issue reopened."); });
+    var acts=rowActions(function(){}, function(){ openConfirm("Delete this issue?", plain(it.title), "Delete", function(){ ev.issues=ev.issues.filter(function(x){return x.id!==it.id;}); save(); render(); toast("Issue deleted."); }); });
+    acts.removeChild(acts.firstChild);
+    var wrap=document.createElement("div"); wrap.style.display="flex"; wrap.style.flexDirection="column"; wrap.style.gap="2px"; wrap.style.alignItems="flex-end"; wrap.appendChild(btn); wrap.appendChild(acts);
+    row.appendChild(left); row.appendChild(wrap); body.appendChild(row);
+  });
+}
+function renderCaseStudy(){
+  var body=panelShell("Case Study — Why This Exists","Built from five years of running corporate buyout events — the nights where one missed cue or one unconfirmed staffer is the difference between a smooth event and a story.", null, null);
+  body.innerHTML =
+  '<div class="cs-grid">' +
+    '<div><h3>The problem</h3><p>Event day runs on paper BEOs, group chats, and memory. The run-of-show lives in one document, staff confirmations in texts, vendor arrivals in email — so on the night, the event lead becomes the integration layer, answering “what happens next?” and “has the DJ arrived?” for six hours straight.</p></div>' +
+    '<div><h3>Who it\'s for</h3><p>Event leads and floor managers running corporate buyouts, holiday parties, and venue events with 50–500 guests, a small staff, and two to five outside vendors.</p><div class="kv"><span>Event lead</span><span>Floor staff</span><span>Vendors</span><span>Client host</span></div></div>' +
+    '<div><h3>MVP scope (this demo)</h3><ul><li>One workspace per event: summary, cues, staff, vendors, prep, issues</li><li>Readiness % computed live from the prep checklist</li><li>Staff confirmation toggles — unconfirmed names stay visible</li><li>Issue log with owner + severity, resolvable in one tap</li><li>Runs entirely in the browser; no account, no server</li></ul></div>' +
+    '<div><h3>What I deliberately cut</h3><ul><li>Multi-user live sync — a v2 problem; paper fails first on visibility, not collaboration</li><li>Payments &amp; contracts — the BEO stays the source of truth</li><li>Guest-list management — registration tools already do it well</li></ul></div>' +
+    '<div><h3>How I\'d measure it</h3><ul><li>Unconfirmed staff at doors-open: target zero</li><li>Open issues carried past event close</li><li>Time from “issue spotted” to “issue owned”</li><li>Prep readiness at T-24h vs. at doors</li></ul></div>' +
+    '<div><h3>Roadmap</h3><ul><li><b>Next:</b> shareable read-only link for the client host</li><li><b>Then:</b> push-style cue alerts to staff phones</li><li><b>Later:</b> post-event retro report auto-built from the issue log</li></ul></div>' +
+    '<div class="cs-full"><h3>What building it taught me</h3><p>The readiness ring is the whole product in miniature: a number nobody can argue with, derived from a checklist nobody can quietly skip. Every feature here exists because of a real failure mode — the unconfirmed staffer, the vendor with no arrival time, the small problem (like a photo booth running out of printer paper) that only becomes an emergency because nobody wrote it down. Scope discipline was the hardest PM call: the demo event above is fictional, but the workflow is the one I ran for real events of 200+ guests.</p></div>' +
+  "</div>";
+}
+
+/* ================= TABS ================= */
+document.querySelectorAll("[data-tab]").forEach(function(b){
+  b.addEventListener("click", function(){ state.tab=b.getAttribute("data-tab"); render(); });
+});
+
+/* ================= MODALS / FORMS ================= */
+var modal=document.getElementById("modal"), modalIn=document.getElementById("modalIn");
+function closeModal(){ if(modal.open) modal.close(); }
+modal.addEventListener("click", function(e){ if(e.target===modal) closeModal(); });
+function fieldHtml(id, label, val, opts){
+  opts=opts||{};
+  if(opts.type==="select"){ return '<div class="field"><label for="'+id+'">'+label+'</label><select id="'+id+'">'+opts.options.map(function(o){return '<option value="'+esc(o)+'" '+(o===val?'selected':"")+">"+esc(o)+"</option>";}).join("")+"</select></div>"; }
+  if(opts.type==="textarea"){ return '<div class="field"><label for="'+id+'">'+label+'</label><textarea id="'+id+'" rows="3">'+esc(val||"")+"</textarea></div>"; }
+  return '<div class="field"><label for="'+id+'">'+label+'</label><input id="'+id+'" type="'+(opts.type||"text")+'" value="'+esc(val)+'" '+(opts.placeholder?'placeholder="'+opts.placeholder+'"':"")+'></div>';
+}
+function openForm(title, sub, fieldsHtml, saveLabel, onSave){
+  modalIn.innerHTML="<h2>"+title+'</h2><p class="sub">'+sub+'</p><form id="mForm">'+fieldsHtml+'<div class="modal-actions"><button type="button" class="btn ghost" id="mCancel">Cancel</button><button type="submit" class="btn primary">'+saveLabel+"</button></div></form>";
+  modal.showModal();
+  document.getElementById("mCancel").addEventListener("click", closeModal);
+  document.getElementById("mForm").addEventListener("submit", function(e){ e.preventDefault(); onSave(); });
+  var first=modalIn.querySelector("input,select,textarea"); if(first) first.focus();
+}
+function val(id){ return document.getElementById(id).value.trim(); }
+function openConfirm(title, body, confirmLabel, onYes){
+  modalIn.innerHTML="<h2>"+esc(title)+'</h2><p class="sub">'+esc(body)+'</p><div class="modal-actions"><button type="button" class="btn ghost" id="mCancel">Cancel</button><button type="button" class="btn danger" id="mYes">'+esc(confirmLabel)+"</button></div>";
+  modal.showModal();
+  document.getElementById("mCancel").addEventListener("click", closeModal);
+  document.getElementById("mYes").addEventListener("click", function(){ closeModal(); onYes(); });
+}
+function openEventForm(ev){
+  var isNew=!ev;
+  ev = ev || {name:"", client:"", dateLabel:"", doors:"6:00 PM", guests:100, venue:""};
+  openForm(isNew?"New event":"Edit event details", isNew?"Set up the event — you can add cues, staff and vendors next.":"Update the summary header for this event.",
+    fieldHtml("fClient","Client / host", plain(ev.client)) + fieldHtml("fName","Event name", plain(ev.name)) +
+    '<div class="field-row">'+fieldHtml("fDate","Date (as displayed)", plain(ev.dateLabel), {placeholder:"Sat, Jan 17, 2027"})+fieldHtml("fDoors","Doors time", plain(ev.doors))+"</div>" +
+    '<div class="field-row">'+fieldHtml("fGuests","Guest count", ev.guests, {type:"number"})+fieldHtml("fVenue","Venue", plain(ev.venue))+"</div>",
+    isNew?"Create event":"Save changes",
+    function(){
+      var data={ client:val("fClient")||"New client", name:val("fName")||"Untitled event", dateLabel:val("fDate")||"Date TBD", doors:val("fDoors")||"TBD", guests:parseInt(val("fGuests"),10)||0, venue:val("fVenue") };
+      if(isNew){ var ne=Object.assign({id:uid("ev"), fictional:false, cues:[], staff:[], vendors:[], prep:[], issues:[]}, data); state.events.push(ne); state.activeId=ne.id; }
+      else { Object.assign(ev, data); }
+      save(); closeModal(); render(); toast(isNew?"Event created.":"Event updated.");
+    });
+}
+document.getElementById("newEventBtn").addEventListener("click", function(){ openEventForm(null); });
+
+function openCueForm(ev, cue){
+  var isNew=!cue; cue=cue||{time:"6:00 PM", title:"", owner:"", notes:""};
+  openForm(isNew?"Add a cue":"Edit cue","Times display in run-of-show order — add cues in the order they happen.",
+    '<div class="field-row">'+fieldHtml("fTime","Time", cue.time)+fieldHtml("fOwner","Owner", plain(cue.owner))+"</div>" +
+    fieldHtml("fTitle","Cue", plain(cue.title)) + fieldHtml("fNotes","Notes", plain(cue.notes), {type:"textarea"}),
+    isNew?"Add cue":"Save changes",
+    function(){ var d={time:val("fTime")||"TBD", title:val("fTitle")||"Untitled cue", owner:val("fOwner"), notes:val("fNotes")};
+      if(isNew) ev.cues.push(Object.assign({id:uid("cue")}, d)); else Object.assign(cue, d);
+      save(); closeModal(); render(); toast(isNew?"Cue added.":"Cue updated."); });
+}
+function openStaffForm(ev, s){
+  var isNew=!s; s=s||{name:"", role:"", call:"5:00 PM"};
+  openForm(isNew?"Add staff member":"Edit staff member","Call time is when they must be on site, briefed — not when doors open.",
+    fieldHtml("fSName","Name", plain(s.name)) + '<div class="field-row">'+fieldHtml("fSRole","Role", plain(s.role))+fieldHtml("fSCall","Call time", s.call)+"</div>",
+    isNew?"Add staff":"Save changes",
+    function(){ var d={name:val("fSName")||"Unnamed", role:val("fSRole")||"Staff", call:val("fSCall")||"TBD"};
+      if(isNew) ev.staff.push(Object.assign({id:uid("st"), confirmed:false}, d)); else Object.assign(s, d);
+      save(); closeModal(); render(); toast(isNew?"Staff added — tap to confirm when they reply.":"Staff updated."); });
+}
+function openVendorForm(ev, v){
+  var isNew=!v; v=v||{name:"", service:"", arrival:"4:00 PM", contact:"", status:"Confirmed"};
+  openForm(isNew?"Add a vendor":"Edit vendor","Arrival is the load-in time you agreed — not the event start.",
+    fieldHtml("fVName","Vendor", plain(v.name)) + fieldHtml("fVService","Service", plain(v.service)) +
+    '<div class="field-row">'+fieldHtml("fVArrival","Arrives", v.arrival)+fieldHtml("fVStatus","Status", v.status, {type:"select", options:["Booked","Confirmed","En route","On site","Set & soundchecked","Done"]})+"</div>" +
+    fieldHtml("fVContact","Contact (name — phone)", plain(v.contact)),
+    isNew?"Add vendor":"Save changes",
+    function(){ var d={name:val("fVName")||"Unnamed vendor", service:val("fVService"), arrival:val("fVArrival")||"TBD", status:val("fVStatus"), contact:val("fVContact")};
+      if(isNew) ev.vendors.push(Object.assign({id:uid("vn")}, d)); else Object.assign(v, d);
+      save(); closeModal(); render(); toast(isNew?"Vendor added.":"Vendor updated."); });
+}
+function openPrepForm(ev){
+  openForm("Add prep item","One checkable line. If it can't be checked off, split it until it can.",
+    fieldHtml("fPLabel","Prep item",""),
+    "Add item",
+    function(){ var lbl=val("fPLabel"); if(!lbl){ closeModal(); return; } ev.prep.push({id:uid("pp"), label:lbl, done:false}); save(); closeModal(); render(); toast("Prep item added."); });
+}
+function openIssueForm(ev){
+  openForm("Log an issue","Write it down with an owner now — that's what keeps a small problem small.",
+    fieldHtml("fITitle","Issue","") + fieldHtml("fIDetail","Detail — what, where, by when", "", {type:"textarea"}) +
+    '<div class="field-row">'+fieldHtml("fIOwner","Owner","")+fieldHtml("fISev","Severity","Medium",{type:"select",options:["Low","Medium","High"]})+"</div>",
+    "Log issue",
+    function(){ var t=val("fITitle"); if(!t){ closeModal(); return; }
+      ev.issues.push({id:uid("is"), title:t, detail:val("fIDetail"), owner:val("fIOwner")||"Unassigned", severity:val("fISev"), status:"Open"});
+      save(); closeModal(); render(); toast("Issue logged."); });
+}
+
+/* ================= INIT ================= */
+load();
+render();
+</script>
+</body>
+</html>
